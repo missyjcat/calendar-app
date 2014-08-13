@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org" id="ng-app" ng-app="jCal">
+<head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+<!-- Polyfills for older browsers -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20130526/json2.min.js"></script>
+<script src="js/arrayPolyfill.js"></script>
+<script src="js/objectKeysPolyfill.js"></script>
+
+<!-- Angular -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.min.js"></script>
+<script src="js/calendar.js"></script>
+
+<!-- Styles -->
+<link rel="stylesheet" href="css/meyer-reset.css" type="text/css" media="all" />
+<link rel="stylesheet" href="css/style.css" type="text/css" media="all" />
+
+</head>
+<body>
+    <div class="timescale-container" ng-controller="ScaleCtrl as scale" id="scaleCtrl" ng-init="init(540, 1260, 30);">
+        <div ng-repeat="interval in intervals" class="interval" ng-class="{ odd : interval.stripe === 'odd' }" ng-style="{ height: interval.length + 'px'}"><span class="interval__displaytime">{{interval.displayStartTime}}</span> <span class="interval__period">{{interval.displayPeriod}}</span></div>
+    </div>
+    <div class="calendar-container">
+        <div class="calendar-controller" ng-controller="CalCtrl as calendar" ng-init="init();" id="calCtrl">
+                <div ng-repeat="item in items" class="item" ng-style="{width: 600/(item.widthDivider || 1) + 'px',height: (item.end - item.start) + 'px',left: (item.position-1)*(600/(item.widthDivider || 1)) + 'px', top: item.start + 'px'}">
+                    <p class="item__title">{{item.title}}</p>
+                    <p class="item__location">{{item.location}}</p>
+                </div>
+        </div>
+    </div>
+    <div style="position: absolute;left: 730px;">
+        <form name="userInput">
+            <p>Hello Danielle! hehe. Enter a start time and end time. <br><br>The format is in minutes from 9:00am, eg. start: 0, end: 60 is equal to start: 9:00am, end: 10:00am.</p>
+            <label>Start in minutes</label> <input type="text" id="startMin" placeholder="eg. 60 = 10:00am" />
+            <label>End in minutes</label><input type="text" id="endMin" placeholder="eg. 120 = 11:00am" />
+            <div class="button" onclick="layOutDaysButton();" style="background-color: lightblue; margin-top: 20px; text-align: center;">Post it!</div>
+        </form>
+    </div>
+</body>
+</html>

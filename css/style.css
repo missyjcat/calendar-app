@@ -1,0 +1,67 @@
+body, html {
+    height: 100%;
+    font-family: 'Lucida Sans', Arial;
+    font-size: 16px;
+}
+
+.item {
+    position: absolute;
+    border: 1px #d5d5d5 solid;
+    border-left: 4px #4a6aaa solid;
+    background-color: #fff;
+}
+
+    .item__title {
+        color: #758cbd;
+        font-weight: bold;
+        font-size: .75em;
+        padding: 7px 0 2px 7px;
+    }
+
+    .item__location {
+        color: #797979;
+        font-size: .55em;
+        padding: 0 0 2px 7px;
+    }
+
+.interval {
+    text-align: right;
+}
+
+    .interval__period, .interval__displaytime {
+        color: #999;
+        font-size: .55em;
+        text-transform: uppercase;
+        padding: 0;
+    }
+
+    .odd .interval__displaytime {
+        font-size: .75em;
+        font-weight: bold;
+        color: #666666;
+    }
+
+.calendar-controller {
+    width: 600px;
+    height: 720px;
+    position: relative;
+}
+
+.calendar-container {
+    float: left;
+    width: 620px;
+    padding-left: 10px;
+    background-color: #ececec;
+    border-left: 1px solid #d5d5d5;
+    position: relative;
+    top: 30px;
+}
+
+.timescale-container {
+    width: 75px;
+    float: left;
+    height: 100%;
+    position: relative;
+    top: 20px;
+    padding-right: 10px;
+}
