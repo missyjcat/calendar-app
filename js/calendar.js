@@ -3,6 +3,14 @@
 
     angular.module('jCal', [])
 
+        /*
+         * This controller is responsible for the logic behind the actual
+         * calendar area, taking care of tasks like instantiating new Items,
+         * new Overlaps, and assigning their properties. There should not be
+         * any View-related rendering tasks here, since that is taken care of
+         * in the markup.
+         */
+
         .controller('CalCtrl', ['$scope', function($scope) {
             
             var controller = this,
@@ -380,12 +388,23 @@
             $scope.init = function(events) {
                 var i = 0;
 
+                // When this controller inits, add the items that have been
+                // passed in to the calendar
                 for (i=0; i<events.length; i++) {
                     this.addItem.call(controller, events[i]);
                 }
             };
 
         }])
+
+        /*
+         * This controller is responsible for the logic behind creating the
+         * timescale on the left. Instead of hard-coding it, I decided to make
+         * it dynamic in case we wanted to change the start or end time of the
+         * day, and if we want to change the interval length. Because the Item
+         * inputs are all in minutes, we have a common unit to base the layout
+         * on, making this a flexible mechanism.
+         */
 
         .controller('ScaleCtrl', ['$scope', function($scope) {
             var controller = this;
@@ -464,10 +483,16 @@
             $scope.init = function(start, end, interval) {
                 var i = 0,
                     newInterval;
+
+                // Loop through each and create the Interval objects to
+                // create the timeline
                 for (i=start; i<=end; i+=interval) {
                     newInterval = new Interval(i, i+interval);
                     this.intervals.push(newInterval);
                 }
+
+                // Set the height of the calendar to be the same height
+                // as the timeline
                 var calCtrlDiv = document.getElementById('calCtrl');
                 calCtrlDiv.style.height = end - start + 'px';
             };
