@@ -407,14 +407,32 @@
                     _endHour = Math.floor(end / 60),
                     _endMinute = end % 60;
 
-                this.displayHour = _startHour % 12;
-                this.displayHour = this.displayHour === 0 ? 12 : this.displayHour;
-                this.displayMinute = _startMinute < 10 ? '0' + _startMinute : _startMinute;
-                this.length = (_endMinute + _endHour * 60) - (_startMinute + _startHour * 60);
-                this.stripe = controller._getStripe();
-                this.displayPeriod = _startHour < 12 ?  'AM' : 'PM';
-                this.displayPeriod = this.stripe === 'odd' ? this.displayPeriod : '';
+                this.displayHour = _startHour % 12; // Convert military-time hour to 1-12
+                this.displayHour = 
+                        this.displayHour === 0 ? 12 : this.displayHour; // Convert 0 to 12
+
+                this.displayMinute = 
+                        _startMinute < 10 ? '0' + 
+                        _startMinute : _startMinute; // Add '0' to minutes less than 10
+
+                this.length = (_endMinute + _endHour * 60) - 
+                        (_startMinute + _startHour * 60); // Convert end hours and minutes
+                                                          // to minutes as well as start
+                                                          // and then get the difference to
+                                                          // find the length of this interval
+
+                this.stripe = controller._getStripe(); // Store whether this is an odd or even
+                                                       // interval for styling purposes
+
+                this.displayPeriod = _startHour < 12 ?  'AM' : 'PM'; // Determine whether this
+                                                                     // is AM or PM based on
+                                                                     // the start hour
+                this.displayPeriod = this.stripe === 'odd'
+                        ? this.displayPeriod : ''; // Remove the AM or PM if this is an even
+                                                   // Interval (to match comp)
+
                 this.displayStartTime = this.displayHour + ':' + this.displayMinute;
+
             };
 
             $scope.intervals = this.intervals;
@@ -442,6 +460,7 @@
 
 var layOutDays = function(events) {
 
+    // If an array is not given, throw an error and return
     if (!events || !(Array.isArray(events))) {
         try {
             throw new Error("Expected an array.");
@@ -453,25 +472,35 @@ var layOutDays = function(events) {
         return;
     }
 
-    var controllerEl = document.getElementById('calCtrl');
-    var scope = angular.element(controllerEl).scope();
-    var controller = angular.element(controllerEl).controller();
-    var i = 0;
+    // Grab the scope & controller from the global scope and store a reference
+    var controllerEl = document.getElementById('calCtrl'),
+        scope = angular.element(controllerEl).scope(),
+        controller = angular.element(controllerEl).controller(),
+        i = 0;
     
+    // For each given event, check to make sure that the end is greater than
+    // the start. Won't do any further validation than this.
     for (i=0; i<events.length; i++) {
         if (events[i].start > events[i].end) {
             try {
-                throw new Error("Event end must be greater than event start.");
+                throw new Error("Event end must be greater than event start. Event starting at " + events[i].start + " and anding at " + events[i].end + " not added to calendar.");
             } catch (e) {
                 if (window.console && window.console.error) {
                     console.error(e.name + ": " + e.message);
                 }
             }
-            return;
+        } else {
+
+            // If this looks good, pass it into the controller's addItem method
+            // to add it to the calendar.
+            scope.addItem.call(controller, events[i]);    
         }
-        scope.addItem.call(controller, events[i]);
     }
+
+    // Update the DOM with the model change
     scope.$apply();
+
+    // Return the updated model
     return scope.items;
 };
 
