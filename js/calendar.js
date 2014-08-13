@@ -177,7 +177,7 @@
              * between two Items
              * @param start {String} Numeric string indicating start time of
              * overlap as difference from calendar start
-             * @param end {String} Numeric string indicating start time of
+             * @param end {String} Numeric string indicating end time of
              * overlaps difference from calendar start
              */
 
