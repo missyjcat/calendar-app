@@ -183,7 +183,6 @@
                 this.end = end;
                 this.members = [];
                 this.id = Overlap.counter;
-                this.memberCount = 0;
                 this.memberPositions = {};
             };
 
