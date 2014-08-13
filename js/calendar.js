@@ -293,28 +293,45 @@
                             return 0;
                         };
 
+                        // Push the actual overlap objects from the
+                        // overlappingOverlaps array of IDs into the sorting
+                        // array
                         for (i=0; i<overlappingOverlaps.length; i++) {
                             overlapObj = this._getObjectFromId(overlappingOverlaps[i], this._overlaps);
                             sortedOverlaps.push(overlapObj);
                         }
 
+                        // Sort the sorting array using the members key of each
+                        // Overlap object
                         sortedOverlaps.sort(_compareFunction);
+                        
+                        // Clear out the overlappingOverlaps array
                         overlappingOverlaps.length = 0;
 
+                        // Push just the IDs of the Overlap objects in the sorted
+                        // array back into the overlapingOverlaps array
                         for (i=0; i<sortedOverlaps.length; i++) {
                             overlappingOverlaps.push(sortedOverlaps[i].id);
                         }
 
+                        // Reverse so that we get the Overlap objects with the
+                        // greatest number of members first
                         overlappingOverlaps.reverse();
 
-                        // This updates the Overlap objects with this new 
-                        // member
+                        // Update the Overlap objects with this new member
                         for (i=0; i<overlappingOverlaps.length; i++) {
                             overlapObj = this._getObjectFromId(overlappingOverlaps[i], this._overlaps);
 
-                            // Make sure to remove members of these overlaps
-                            // from overlappingItems array so we don't create 
-                            // a new overlap unnecessarily
+                            // We will use this opportunity to remove members 
+                            // that we find in these Overlap ojects from the
+                            // overlappingItems array by pushing it into
+                            // an array we will later use to filter them out.
+                            // 
+                            // The reason is we will be creating new Overlap
+                            // objects with the remaining members, and we don't
+                            // want to do that if these members are already
+                            // part of an Overlap.
+
                             for (j=0; j<overlapObj.members.length; j++) {
                                 if (overlappingItems.indexOf(overlapObj.members[j]) !== -1) {
                                     removeArray.push(overlapObj.members[j]);
@@ -337,6 +354,8 @@
                         overlappingItems = overlappingItems.filter(filterFunc, removeArray);
                     }
 
+                    // Now that we have a sanitized array for overlappingItems,
+                    // create new Overlap objects for each one.
                     for (i=0; i<overlappingItems.length; i++) {
                         itemObj = this._getObjectFromId(overlappingItems[i], this.items);
                         this._createNewOverlap.call(this, newItem, itemObj);
