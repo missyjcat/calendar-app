@@ -359,14 +359,11 @@
 
             $scope.addItem = this.addItem;
             
-            $scope.init = function() {
-                var startingEvents = [ {start: 30, end: 150}, {start: 540, end: 600}, {start: 560, end: 620}, {start: 610, end: 670} ],
-                    i = 0,
-                    controllerEl = document.getElementById('calCtrl'),
-                    controller = angular.element(controllerEl).controller();
+            $scope.init = function(events) {
+                var i = 0;
 
-                for (i=0; i<startingEvents.length; i++) {
-                    this.addItem.call(controller, startingEvents[i]);
+                for (i=0; i<events.length; i++) {
+                    this.addItem.call(controller, events[i]);
                 }
             };
 
@@ -435,6 +432,8 @@
                     newInterval = new Interval(i, i+interval);
                     this.intervals.push(newInterval);
                 }
+                var calCtrlDiv = document.getElementById('calCtrl');
+                calCtrlDiv.style.height = end - start + 'px';
             };
 
         }]);
