@@ -31,7 +31,8 @@
              * Finds overlaps and returns an array of ids
              * @private
              * @param item {Object} takes Item object
-             * @param overlapArray {Array} takes array of either Item or Overlap objects
+             * @param overlapArray {Array} takes array of either Item or Overlap 
+             * objects
              * @return {Array} List of ids the item overlaps with
              */
 
@@ -45,6 +46,12 @@
                         diffEnds = Math.abs(item.end - overlapArray[i].end),
                         lengthCompare = overlapArray[i].end - overlapArray[i].start;
 
+                    // If the combined absolute values of the differences
+                    // between the start times and the end times of the two
+                    // items we're comparing is less than the combined heights
+                    // of the two items we're comparing, then we have verified
+                    // an overlap
+
                     if ((diffStarts + diffEnds) <= (lengthItem + lengthCompare)) {
                         output.push(overlapArray[i].id);
                     }
@@ -54,7 +61,8 @@
             };
 
             /* 
-             * Returns an object containing the start and end time of an overlap
+             * Returns an object containing the start and end time of an 
+             * overlap
              * @private
              * @param item1, item2 {Object} takes Item object
              * @return {Object} start and end time of the overlap
@@ -66,6 +74,10 @@
                 starts.push(item1.start, item2.start);
                 ends.push(item1.end, item2.end);
 
+                // The start and end times of the overlap is determined by the
+                // lowest start time and the highest end time of two verified
+                // overlapping items
+
                 var start = Math.max.apply(null, starts);
                 var end = Math.min.apply(null, ends);
 
@@ -74,8 +86,9 @@
             };
 
             /* 
-             * Determines width of item based on stored overlap information such that
-             * any two items that collide in time should have the same width
+             * Determines width of item based on stored overlap information
+             * such that any two items that collide in time should have the 
+             * same width
              * @private
              * @param item {Object} takes Item object
              * @return {String} number to divide width by
@@ -91,6 +104,13 @@
                     overlapObj = null,
                     itemObj = null;
 
+
+                // The width of the element is the total canvas width divided 
+                // by the maximum number of peers, defined by items that not 
+                // only share my overlap, but items that share my peers' 
+                // overlaps. This accounts for cases where a new item is 
+                // added to the calendar that doesn't overlap with me, but
+                // overlaps with an item I overlap with.
 
                 // How many members in my overlaps?
                 for (i=0; i<item.overlap.length; i++) {
@@ -109,7 +129,7 @@
                         }
                     }
                 }
-                
+
                 var max = Math.max.apply(null, memberLengthArray);
                 if (max < 0) {
                     return 0;
@@ -122,8 +142,10 @@
 
             /* 
              * Item class defines properties of a new event (item)
-             * @param start {String} Numeric string indicating start time as difference from calendar start
-             * @param end {String} Numeric string indicating start time as difference from calendar start
+             * @param start {String} Numeric string indicating start time as
+             * difference from calendar start
+             * @param end {String} Numeric string indicating start time as 
+             * difference from calendar start
              */
             var Item = function(start, end, title, location) {
                 Item.counter = (Item.counter || 0) + 1;
@@ -143,11 +165,12 @@
             };
 
             /* 
-             * Overlap class defines properties and methods of an overlap between two Items
-             * @param start {String} Numeric string indicating start time of overlap as difference from 
-             * calendar start
-             * @param end {String} Numeric string indicating start time of overlapas difference from
-             * calendar start
+             * Overlap class defines properties and methods of an overlap
+             * between two Items
+             * @param start {String} Numeric string indicating start time of
+             * overlap as difference from calendar start
+             * @param end {String} Numeric string indicating start time of
+             * overlaps difference from calendar start
              */
 
             var Overlap = function(start, end) {
@@ -165,31 +188,32 @@
             };
 
             /* 
-             * Adds an item as a member of this Overlap, updates overlap and item properties
+             * Adds an item as a member of this Overlap, updates overlap and
+             * item properties
              * @param item {Object} Item instance
              */
 
             Overlap.prototype.addItem = function(item) {
-                // Check through member positions and fill the first non-empty one
-                var i = 0,
-                    j = 0,
+                var i = 1,
                     overlapPosition = 0;
 
+                // A position is locked if an Item has already been assigned a
+                // position. If the item has not yet been locked, proceed with
+                // assignment.
                 if (!item.positionLocked) {
 
-                    i = 1;
+                    // Iterating through the memberPositions of this Overlap
+                    // instance, find the lowest position that is vacant.
                     while (this.memberPositions[i]) {
                         i++;
                     }
-
-                    overlapPosition = i;
-
-                    if (overlapPosition >= 1) {
-                        item.position = overlapPosition;
-                        item.positionLocked = true;
-                    }
+    
+                    item.position = i;
+                    item.positionLocked = true;
                 }
                 
+                // Make sure that this item doesn't already exist as a member
+                // of this Overlap
                 if (this.members.indexOf(item.id) === -1) {
                     this.members.push(item.id);
                 }
@@ -198,8 +222,8 @@
             };
 
             /* 
-             * Given two items, create a new Overlap object; this contains the only means of
-             * constructing new Overlap instance
+             * Given two items, create a new Overlap object; this contains the
+             * only means of constructing new Overlap instance
              * @private
              * @param item1, item2 {Object} Item instance
              */
@@ -209,10 +233,12 @@
                     i = 0,
                     overlaps = this._overlaps;
                 
-                // Check to see if this overlap already exists. If it does, just add these items to
-                // the overlap that exists. Otherwise, create a new one and add these items to it.
+                // Check to see if this overlap already exists. If it does, 
+                // just add these items to the overlap that exists. Otherwise,
+                // create a new one and add these items to it.
                 for (i=0; i<overlaps.length; i++) {
-                    if ((overlaps[i].start === overlapInfo.start) && (overlaps[i].end === overlapInfo.end)) {
+                    if ((overlaps[i].start === overlapInfo.start) && 
+                            (overlaps[i].end === overlapInfo.end)) {
                         overlaps[i].addItem(item1);
                         overlaps[i].addItem(item2);
                         return;
@@ -227,8 +253,8 @@
             };
 
             /* 
-             * Constructs and adds an Item object to the items array and update Overlaps and existing Item 
-             * properties
+             * Constructs and adds an Item object to the items array and update
+             * Overlaps and existing Item properties
              * @param item {Object} Basic object containing start and end props
              */
 
@@ -248,9 +274,10 @@
 
                     if (overlappingOverlaps.length) {
 
-                        // We want to sort this in order of overlaps that have the most members
-                        // first, to avoid items which are members of many overlaps being locked
-                        // into too low a position
+                        // We want to sort this in order of overlaps that have
+                        // the most members first, to avoid items which are 
+                        // members of many overlaps being locked into too low
+                        // a position
                         
                         var sortedOverlaps = [];
 
@@ -280,13 +307,14 @@
 
                         overlappingOverlaps.reverse();
 
-                        // This updates the Overlap objects with this new member
+                        // This updates the Overlap objects with this new 
+                        // member
                         for (i=0; i<overlappingOverlaps.length; i++) {
                             overlapObj = this._getObjectFromId(overlappingOverlaps[i], this._overlaps);
 
-                            // Make sure to remove members of these overlaps from overlappingItems 
-                            // array so we don't create a new overlap unnecessarily; this surgery gets
-                            // intense when we have a ton of events
+                            // Make sure to remove members of these overlaps
+                            // from overlappingItems array so we don't create 
+                            // a new overlap unnecessarily
                             for (j=0; j<overlapObj.members.length; j++) {
                                 if (overlappingItems.indexOf(overlapObj.members[j]) !== -1) {
                                     removeArray.push(overlapObj.members[j]);
@@ -297,9 +325,10 @@
 
                     }
 
-                    // Make sure to remove all instances of members in the removeArray from the
-                    // overlappingItems array before processing to create new overlaps so that
-                    // we know we're making new overlaps for virgin items
+                    // Make sure to remove all instances of members in the 
+                    // removeArray from the overlappingItems array before 
+                    // processing to create new overlaps so that we know we're
+                    // making new overlaps for virgin items
                     var filterFunc = function(el) {
                             return this[i] !== el;
                         };
@@ -350,7 +379,8 @@
             this.stripe = 'odd';
 
             /* 
-             * Util function that switches off between even/odd, kept track by controller
+             * Util function that switches off between even/odd, kept track by 
+             * controller
              * @private
              */
             this._getStripe = function() {
@@ -364,8 +394,10 @@
             };
 
             /* 
-             * Interval Class defines props for glorified date objects that works with this app
-             * @param start, end {Object} Object with time defined as minutes away from zero (midnight)
+             * Interval Class defines props for glorified date objects that
+             * works with this app
+             * @param start, end {Object} Object with time defined as minutes 
+             * away from zero (midnight)
              */
 
             var Interval = function(start, end) {
@@ -392,7 +424,8 @@
 
             /* 
              * Init the time interval controller
-             * @param start, end {Number} Start and end times in minutes from midnight (eg, 540 = 900am)
+             * @param start, end {Number} Start and end times in minutes from
+             * midnight (eg, 540 = 900am)
              * @param interval {Number} Interval in minutes
              */
             $scope.init = function(start, end, interval) {
