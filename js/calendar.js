@@ -96,7 +96,7 @@
             /* 
              * Determines width of item based on stored overlap information
              * such that any two items that collide in time should have the 
-             * same width
+             * same width if this alg is applied to all items in calendar
              * @private
              * @param item {Object} takes Item object
              * @return {String} number to divide width by
@@ -152,7 +152,7 @@
              * Item class defines properties of a new event (item)
              * @param start {String} Numeric string indicating start time as
              * difference from calendar start
-             * @param end {String} Numeric string indicating start time as 
+             * @param end {String} Numeric string indicating end time as 
              * difference from calendar start
              */
             var Item = function(start, end, title, location) {
