@@ -173,55 +173,26 @@
                 // Check through member positions and fill the first non-empty one
                 var i = 0,
                     j = 0,
-                    takenPositions = Object.keys(this.memberPositions),
-                    overlapPosition = 0,
-                    otherMemberArray = [],
-                    otherMemberPosition = 0,
-                    overlapObj = null;
-
-                this.memberCount++;
+                    overlapPosition = 0;
 
                 if (!item.positionLocked) {
 
-                    // First, check if this item is a member of any other Overlap objects and
-                    // if it is, store that object's position in an array
-                    for (i=0; i<item.overlap.length; i++) {
-                        overlapObj = this._getObjectFromId(item.overlap[i], this._overlaps);
-                        otherMemberArray = Object.keys(overlapObj.memberPositions);
-                        for (j=0; j<otherMemberArray.length; j++) {
-                            if (overlapObj[otherMemberArray[j]] === item.id) {
-                                otherMemberPosition.push(otherMemberArray[j]);
-                            }
-                        }
+                    i = 1;
+                    while (this.memberPositions[i]) {
+                        i++;
                     }
 
-                    // Find the max in that array and store it
-                    otherMemberPosition = Math.max.apply(null, otherMemberArray) + 1;
+                    overlapPosition = i;
 
-                    // Find the value of the first vacant position in this Overlap
-                    for (i=1; i<=takenPositions.length; i++) {
-                        if (!this.memberPositions[i]) {
-                            overlapPosition = i;
-                        }
-                    }
-
-                    // Assign the greater of the two
-                    if (overlapPosition && (otherMemberPosition > overlapPosition)) {
-                        item.position = otherMemberPosition;
-                        item.positionLocked = true;
-                    } else if (overlapPosition) {
+                    if (overlapPosition >= 1) {
                         item.position = overlapPosition;
                         item.positionLocked = true;
                     }
-
-                    // If at this point the position is still unlocked, assign member
-                    // the value of the member count
-                    if (!item.positionLocked) {
-                        item.position = this.memberCount;
-                        item.positionLocked = true;
-                    }
                 }
-                this.members.push(item.id);
+                
+                if (this.members.indexOf(item.id) === -1) {
+                    this.members.push(item.id);
+                }
                 this.memberPositions[item.position] = item.id;
                 item.overlap.push(this.id);
             };
