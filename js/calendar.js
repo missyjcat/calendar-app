@@ -16,9 +16,6 @@
             var controller = this,
                 i = 0;
 
-            /**
-             * Store created Items and Overlap objects
-             */
             this.items = items;
             this._overlaps = [];
 
