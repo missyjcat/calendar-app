@@ -34,6 +34,27 @@
                     }
                 }
             };
+
+            /**
+             * Utility function that filters an array given the items to remove
+             * from it
+             * @private
+             * @param {Array} targetArray - original array
+             * @param {Array} itemsToRemove - array of values to remove
+             * @return {Array} filtered array
+             */
+            this._filterArrayUsingArray = function(targetArray, itemsToRemove) {
+                var filterFunc = function(el) {
+                    return this[i] !== el;
+                    },
+                    i = 0;
+
+                for (i=0; i<itemsToRemove.length; i++) {
+                    targetArray = targetArray.filter(filterFunc, itemsToRemove);
+                }
+
+                return targetArray;
+            };
         
             /** 
              * Finds overlaps and returns an array of ids
@@ -102,10 +123,129 @@
 
             };
 
+            /**
+             * Given an Item object, output a list of Item ids that are members
+             * of that Item's overlaps
+             * @private
+             * @param {Array} item - Item object
+             * @return {Array} Item ids belonging to overlaps of item
+             */
+
+            this._getMembersInMyOverlaps = function(item) {
+                var i = 0,
+                    j = 0,
+                    overlapObj = null,
+                    output = [];
+
+                for (i=0; i<item.overlap.length; i++) {
+                    overlapObj = this._getObjectFromId(item.overlap[i], this._overlaps);
+                    for (j=0; j<overlapObj.members.length; j++) {
+                        output.push(overlapObj.members[j]);
+                    }
+                }
+
+                return output;
+            };
+
+            /**
+             * Given an Item object and a list of Overlap ids, output any
+             * Overlap ids that aren't already in that list
+             * @private
+             * @param {Object} item - Item object
+             * @param {Array} overlapIds - list of Overlap ids to compare
+             * @return {Array} Overlap ids in Item not already in overlapIds
+             */
+
+            this._getNewOverlapIds = function(item, overlapIds) {
+                // get overlap Ids that are not already in the array
+                var i = 0,
+                    output = [];
+                
+                for (i=0; i<item.overlap.length; i++) {
+                    if (overlapIds.indexOf(item.overlap[i]) === -1) {
+                        output.push(item.overlap[i]);
+                    }
+                }
+
+                return output;
+            };
+
+            /**
+             * Get total list of overlaps in a chain of items that overlap
+             * (ie., if item A overlaps with item B, and item B overlaps with
+             * item C, and item C overlaps with item D but not A, return a
+             * list of each individual overlap)
+             * @private
+             * @param {Object} item - takes Item object
+             * @param {Array} membersChecked - array of members not to process
+             * @return {Array} array of Overlap ids that form this relationship
+             * chain
+             */
+             this._getOverlapsInRelationshipChain = function(item, membersChecked, output) {
+                var i = 0,
+                    j = 0,
+                    k = 0,
+                    output = output || [],
+                    overlapObj = null,
+                    membersToCheck = [],
+                    membersChecked = membersChecked || [item.id],
+                    itemObj = null,
+                    newOverlapIds = [];
+
+                    /** 
+                     * Get list of members to check for overlaps, but make sure
+                     * to filter out members we've already checked.
+                     */
+                    membersToCheck = this._filterArrayUsingArray(this._getMembersInMyOverlaps(item), membersChecked);
+
+                    /**
+                     * For each members, push that id into the membersChecked
+                     * array so we only check it once, then get the item and
+                     * use that to find overlap Ids we haven't already found.
+                     */
+                    for (i=0; i<membersToCheck.length; i++) {
+                        membersChecked.push(membersToCheck[i]);
+                        itemObj = this._getObjectFromId(membersToCheck[i], this.items);
+                        newOverlapIds = this._getNewOverlapIds(itemObj, output);
+
+                        /**
+                         * If we find new overlap Ids, add that to our output
+                         * array so we don't "find" them again
+                         */
+                        if (newOverlapIds.length) {
+                            output = output.concat(newOverlapIds);
+
+                            /**
+                             * Loop through these new Overlap ids and for each
+                             * of the members, if we haven't already checked
+                             * them, run them through this function again with
+                             * the current membersChecked and output arrays as
+                             * arguments to find Overlap relationships a level
+                             * deeper
+                             */
+                            for (j=0; j<newOverlapIds.length; j++) {
+                                overlapObj = this._getObjectFromId(newOverlapIds[j], this._overlaps);
+                                for (k=0; k<overlapObj.members.length; k++) {
+                                    if (membersChecked.indexOf(overlapObj.members[k]) === -1) {
+                                        itemObj = this._getObjectFromId(overlapObj.members[k], this.items);
+                                        output = this._getOverlapsInRelationshipChain(itemObj, membersChecked, output);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                /** If there are no more overlap ids to be found, return **/
+                return output;
+
+             };
+
             /** 
-             * Determines width of item based on stored overlap information
-             * such that any two items that collide in time should have the 
-             * same width if this alg is applied to all items in calendar
+             * Determines width of item by first getting all the Overlaps
+             * that not only it belongs to, but that it has a relationship
+             * to through an item object that it is overlapping with to the
+             * Nth degree; then uses the greatest number of members it finds
+             * to determine width
              * @private
              * @param {Object} item - takes Item object
              * @return {String} number to divide width by
@@ -114,7 +254,7 @@
             this._findWidthDivider = function(item) {
                 var i = 0,
                     j = 0,
-                    overlapArray = this._overlaps,
+                    overlapArray = [],
                     overlapMemberIds = [],
                     memberLengthArray = [],
                     overlapMemberOverlapIds = [],
@@ -131,23 +271,20 @@
                  * overlaps with an item I overlap with.
                  */
 
-                /** How many members in my overlaps? **/
-                for (i=0; i<item.overlap.length; i++) {
-                    overlapObj = this._getObjectFromId(item.overlap[i], this._overlaps);
+                /** 
+                 * Get list of relevant Overlap objects to check and store
+                 * their member lengths
+                 */
+                 overlapArray = this._getOverlapsInRelationshipChain(item);
+                 for (i=0; i<overlapArray.length; i++) {
+                    overlapObj = this._getObjectFromId(overlapArray[i], this._overlaps);
                     memberLengthArray.push(overlapObj.members.length);
-                    overlapMemberIds = overlapMemberIds.concat(overlapObj.members);
-                }
+                 }
 
-                /** How many members in my overlap members' overlaps? **/
-                for (i=0; i<overlapMemberIds.length; i++) {
-                    itemObj = this._getObjectFromId(overlapMemberIds[i], this.items);
-                    for (j=0; j<itemObj.overlap.length; j++) {
-                        overlapObj = this._getObjectFromId(itemObj.overlap[j], this._overlaps);
-                        if (overlapObj) {
-                            memberLengthArray.push(overlapObj.members.length);
-                        }
-                    }
-                }
+                /**
+                 * Return the maximum member count of all the item's related
+                 * overlap arrays. This is the number to divide width by.
+                 */
 
                 max = Math.max.apply(null, memberLengthArray);
                 if (max < 0) {
@@ -399,13 +536,7 @@
                      * making new overlaps for virgin items
                      */
 
-                    filterFunc = function(el) {
-                            return this[i] !== el;
-                        };
-
-                    for (i=0; i<removeArray.length; i++) {
-                        overlappingItems = overlappingItems.filter(filterFunc, removeArray);
-                    }
+                    overlappingItems = this._filterArrayUsingArray(overlappingItems, removeArray);
 
                     /**
                      * Now that we have a sanitized array for overlappingItems,
