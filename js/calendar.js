@@ -511,16 +511,16 @@
 
                 this.length = (_endMinute + _endHour * MINUTES) - 
                         (_startMinute + _startHour * MINUTES);  // Convert end hours and minutes
-                                                           // to minutes as well as start
-                                                           // and then get the difference to
-                                                           // find the length of this interval
+                                                                // to minutes as well as start
+                                                                // and then get the difference to
+                                                                // find the length of this interval
 
                 this.stripe = controller._getStripe();  // Store whether this is an odd or even
                                                         // interval for styling purposes
 
                 this.displayPeriod = _startHour < HOURS ?  'AM' : 'PM';  // Determine whether this
-                                                                      // is AM or PM based on
-                                                                      // the start hour
+                                                                         // is AM or PM based on
+                                                                         // the start hour
                 this.displayPeriod = this.stripe === 'odd'
                         ? this.displayPeriod : '';  // Remove the AM or PM if this is an even
                                                     // Interval (to match comp)
