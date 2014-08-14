@@ -89,7 +89,7 @@
                 starts.push(item1.start, item2.start);
                 ends.push(item1.end, item2.end);
 
-                /*
+                /**
                  * The start and end times of the overlap is determined by the
                  * lowest start time and the highest end time of two verified
                  * overlapping items
@@ -626,10 +626,4 @@ var layOutDays = function(events) {
      */
 
     return scope.items;
-};
-
-var layOutDaysButton = function() {
-    var start = document.getElementById('startMin').value;
-    var end = document.getElementById('endMin').value;
-    layOutDays([{start: parseFloat(start), end: parseFloat(end)}]);
 };
