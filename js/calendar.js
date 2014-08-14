@@ -16,6 +16,9 @@
             var controller = this,
                 i = 0;
 
+            /**
+             * Store created Items and Overlap objects
+             */
             this.items = items;
             this._overlaps = [];
 
@@ -36,8 +39,8 @@
             };
 
             /**
-             * Utility function that filters an array removing items from
-             * another array containing values to remove
+             * Utility function that filters an array given the items to remove
+             * from it
              * @private
              * @param {Array} targetArray - original array
              * @param {Array} itemsToRemove - array of values to remove
@@ -46,7 +49,7 @@
             this._filterArrayUsingArray = function(targetArray, itemsToRemove) {
                 var filterFunc = function(el) {
                     return this[i] !== el;
-                },
+                    },
                     i = 0;
 
                 for (i=0; i<itemsToRemove.length; i++) {
@@ -126,6 +129,7 @@
             /**
              * Given an Item object, output a list of Item ids that are members
              * of that Item's overlaps
+             * @private
              * @param {Array} item - Item object
              * @return {Array} Item ids belonging to overlaps of item
              */
@@ -149,6 +153,7 @@
             /**
              * Given an Item object and a list of Overlap ids, output any
              * Overlap ids that aren't already in that list
+             * @private
              * @param {Object} item - Item object
              * @param {Array} overlapIds - list of Overlap ids to compare
              * @return {Array} Overlap ids in Item not already in overlapIds
@@ -173,6 +178,7 @@
              * (ie., if item A overlaps with item B, and item B overlaps with
              * item C, and item C overlaps with item D but not A, return a
              * list of each individual overlap)
+             * @private
              * @param {Object} item - takes Item object
              * @param {Array} membersChecked - array of members not to process
              * @return {Array} array of Overlap ids that form this relationship
@@ -238,9 +244,11 @@
              };
 
             /** 
-             * Determines width of item based on stored overlap information
-             * such that any two items that collide in time should have the 
-             * same width if this alg is applied to all items in calendar
+             * Determines width of item by first getting all the Overlaps
+             * that not only it belongs to, but that it has a relationship
+             * to through an item object that it is overlapping with to the
+             * Nth degree; then uses the greatest number of members it finds
+             * to determine width
              * @private
              * @param {Object} item - takes Item object
              * @return {String} number to divide width by
