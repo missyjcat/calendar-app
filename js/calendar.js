@@ -716,7 +716,7 @@
     
 })();
 
-var layOutDays = function(events) {
+var layOutDay = function(events) {
 
     /**
      * If an array is not given, throw an error and return
