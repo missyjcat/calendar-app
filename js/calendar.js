@@ -59,7 +59,7 @@
             /** 
              * Finds overlaps and returns an array of ids
              * @private
-             * @param {Object} item - takes Item object
+             * @param {Object} item - takes Item or Overlap object
              * @param {Array} overlapArray - takes array of either Item or 
              * Overlap objects
              * @return {Array} List of ids the item overlaps with
@@ -370,6 +370,7 @@
                     }
     
                     item.position = i;
+
                     item.positionLocked = true;
                 }
                 
@@ -381,7 +382,15 @@
                     this.members.push(item.id);
                 }
                 this.memberPositions[item.position] = item.id;
-                item.overlap.push(this.id);
+
+                /** 
+                 * Make sure that this overlap id doesn't already exist in this
+                 * Item.overlap array
+                 */
+                if (item.overlap.indexOf(this.id) === -1) {
+                    item.overlap.push(this.id);    
+                }
+                
             };
 
             /** 
@@ -395,7 +404,9 @@
                 var overlapInfo = this._calculateOverlap(item1, item2),
                     i = 0,
                     overlaps = this._overlaps,
-                    newOverlap = null;
+                    newOverlap = null,
+                    overlappingItems,
+                    itemObj = null;
                 
                 /**
                  * Check to see if this overlap already exists. If it does, 
@@ -415,6 +426,16 @@
                 newOverlap = new Overlap(overlapInfo.start, overlapInfo.end);
                 newOverlap.addItem(item2);
                 newOverlap.addItem(item1);
+
+                /**
+                 * Need to update this new Overlap with items that overlap it
+                 */
+
+                 overlappingItems = this._overlapWith(newOverlap, this.items);
+                 for (i=0; i<overlappingItems.length; i++) {
+                    itemObj = this._getObjectFromId(overlappingItems[i], this.items);
+                    newOverlap.addItem(itemObj);
+                 }
                                     
                 this._overlaps.push(newOverlap);
             };
@@ -499,6 +520,7 @@
                          */
 
                         overlappingOverlaps.reverse();
+                        console.log(overlappingOverlaps);
 
                         /**
                          * Update the Overlap objects with this new member
