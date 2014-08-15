@@ -20,7 +20,8 @@
             this._overlaps = [];
 
             /**
-             * Utility function to grab id from an array of objects
+             * Utility function to grab an object, given an id, from an array
+             * of objects
              * @private
              * @param {String} id - desired id
              * @param {Array} array - array of objects that have an id prop
@@ -57,7 +58,8 @@
             };
         
             /** 
-             * Finds overlaps and returns an array of ids
+             * Finds overlaps between a given item and an array of objects with
+             * start and end properties, and returns an array of ids
              * @private
              * @param {Object} item - takes Item or Overlap object
              * @param {Array} overlapArray - takes array of either Item or 
@@ -107,6 +109,7 @@
                     ends = [],
                     start = null,
                     end = null;
+
                 starts.push(item1.start, item2.start);
                 ends.push(item1.end, item2.end);
 
@@ -116,8 +119,8 @@
                  * overlapping items
                  */
 
-                var start = Math.max.apply(null, starts);
-                var end = Math.min.apply(null, ends);
+                start = Math.max.apply(null, starts);
+                end = Math.min.apply(null, ends);
 
                 return { start: start, end: end };
 
@@ -388,7 +391,7 @@
                  * Item.overlap array
                  */
                 if (item.overlap.indexOf(this.id) === -1) {
-                    item.overlap.push(this.id);    
+                    item.overlap.push(this.id);
                 }
                 
             };
@@ -415,7 +418,7 @@
                  */
 
                 for (i=0; i<overlaps.length; i++) {
-                    if ((overlaps[i].start === overlapInfo.start) && 
+                    if ((overlaps[i].start === overlapInfo.start) &&
                             (overlaps[i].end === overlapInfo.end)) {
                         overlaps[i].addItem(item1);
                         overlaps[i].addItem(item2);
@@ -654,14 +657,14 @@
                     _endMinute = end % MINUTES;
 
                 this.displayHour = _startHour % HOURS;  // Convert military-time hour to 1-12
-                this.displayHour = 
+                this.displayHour =
                         this.displayHour === 0 ? HOURS : this.displayHour;  // Convert 0 to 12
 
-                this.displayMinute = 
-                        _startMinute < 10 ? '0' + 
+                this.displayMinute =
+                        _startMinute < 10 ? '0' +
                         _startMinute : _startMinute;  // Add '0' to minutes less than 10
 
-                this.length = (_endMinute + _endHour * MINUTES) - 
+                this.length = (_endMinute + _endHour * MINUTES) -
                         (_startMinute + _startHour * MINUTES);  // Convert end hours and minutes
                                                                 // to minutes as well as start
                                                                 // and then get the difference to
@@ -673,9 +676,8 @@
                 this.displayPeriod = _startHour < HOURS ?  'AM' : 'PM';  // Determine whether this
                                                                          // is AM or PM based on
                                                                          // the start hour
-                this.displayPeriod = this.stripe === 'odd'
-                        ? this.displayPeriod : '';  // Remove the AM or PM if this is an even
-                                                    // Interval (to match comp)
+                this.displayPeriod = this.stripe === 'odd' ? this.displayPeriod : '';  // Remove the AM or PM if this is an even
+                                                                                       // Interval (to match comp)
 
                 this.displayStartTime = this.displayHour + ':' + this.displayMinute;
 
@@ -763,7 +765,7 @@ var layOutDay = function(events) {
              * to add it to the calendar.
              */
 
-            scope.addItem.call(controller, events[i]);    
+            scope.addItem.call(controller, events[i]);
         }
     }
 
