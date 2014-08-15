@@ -520,7 +520,6 @@
                          */
 
                         overlappingOverlaps.reverse();
-                        console.log(overlappingOverlaps);
 
                         /**
                          * Update the Overlap objects with this new member
