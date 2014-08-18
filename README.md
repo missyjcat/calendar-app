@@ -1,6 +1,12 @@
 calendar-app
 ============
 
+USAGE:
+
+You should be able to clone this repo and open index.html locally in your browser. Using `layOutDay()` in the console, you should be able to pass in an array of event objects with `start` and `end` keys that contain numeric values that equal the number of minutes from the start of the calendar (in this case, 9:30am).
+
+eg: `layOutDay([{start: 30, end: 90}]);`
+
 ASSIGNMENT:
 
 Our team reviews all submissions closely and it's been very helpful for us to gain insight into a candidate's problem solving and coding abilities. Because of our firewalls the only way to send this back when completed is through a file-sharing, i.e. dropbox.  Included below are the details for the challenge, along with one attachment. Your solution will be run through a suite of test cases and evaluated on correctness, elegance, and readability.
