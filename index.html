@@ -21,10 +21,15 @@
 </head>
 <body>
     <div class="timescale-container" ng-controller="ScaleCtrl as scale" id="scaleCtrl" ng-init="init(540, 1260, 30);">
-        <div ng-repeat="interval in intervals" class="interval" ng-class="{ odd : interval.stripe === 'odd' }" ng-style="{ height: interval.length + 'px'}"><span class="interval__displaytime">{{interval.displayStartTime}}</span> <span class="interval__period">{{interval.displayPeriod}}</span></div>
+        <div ng-repeat="interval in intervals" class="interval" ng-class="{ odd : interval.stripe === 'odd' }" ng-style="{ height: interval.length + 'px'}">
+            <span class="interval__displaytime">{{interval.displayStartTime}}</span>
+            <span class="interval__period">{{interval.displayPeriod}}</span>
+        </div>
     </div>
     <div class="calendar-container">
         <div class="calendar-controller" ng-controller="CalCtrl as calendar" ng-init="init([ {start: 30, end: 150}, {start: 540, end: 600}, {start: 560, end: 620}, {start: 610, end: 670} ]);" id="calCtrl">
+                <!-- This should be a directive. Effectively, all the logic of style, size of each item etc. should be in the directive.
+                     Directive should be the only entity touching the DOM and doing DOM related computations (e.g. the width of your items). -->
                 <div ng-repeat="item in items" class="item" ng-style="{width: 600/(item.widthDivider || 1) + 'px',height: (item.end - item.start) + 'px',left: (item.position-1)*(600/(item.widthDivider || 1)) + 'px', top: item.start + 'px'}">
                     <p class="item__title">{{item.title}}</p>
                     <p class="item__location">{{item.location}}</p>

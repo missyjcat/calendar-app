@@ -1,4 +1,10 @@
+// Ideally, each controller would be in their own js file.
+// Also, my comments are mostly about the angular way of doing things. I am not checking if your algorithms are as
+// simple as they should be and if they are accurate.
 (function() {
+
+    // Items here should be share with a different mean. You don't want angular to work
+    // with variable outside of its context. Check the layout met
     var items = [];
 
     angular.module('jCal', [])
@@ -12,10 +18,11 @@
          */
 
         .controller('CalCtrl', ['$scope', function($scope) {
-            
+
             var controller = this,
                 i = 0;
 
+            // This would become this.items = []
             this.items = items;
             this._overlaps = [];
 
@@ -27,6 +34,7 @@
              * @param {Array} array - array of objects that have an id prop
              * @return {Object} matching object
              */
+            // This would go in a utility service that you would inject
             this._getObjectFromId = function(id, array) {
                 var m = 0;
                 for (m=0; m<array.length; m++) {
@@ -44,6 +52,8 @@
              * @param {Array} itemsToRemove - array of values to remove
              * @return {Array} filtered array
              */
+            // angular filter is the thing you want here. But I think the general rule here is that you are greatly
+            // polluting your controller with functionality that do not belong here.
             this._filterArrayUsingArray = function(targetArray, itemsToRemove) {
                 var filterFunc = function(el) {
                     return this[i] !== el;
@@ -56,17 +66,18 @@
 
                 return targetArray;
             };
-        
-            /** 
+
+            /**
              * Finds overlaps between a given item and an array of objects with
              * start and end properties, and returns an array of ids
              * @private
              * @param {Object} item - takes Item or Overlap object
-             * @param {Array} overlapArray - takes array of either Item or 
+             * @param {Array} overlapArray - takes array of either Item or
              * Overlap objects
              * @return {Array} List of ids the item overlaps with
              */
-
+            // Angular is not very strong on having classes for your objects. However, since you do have an Item class,
+            // this function should be added to the prototype of it.
             this._overlapWith = function(item, overlapArray) {
                 var lengthItem = item.end - item.start,
                     i = 0,
@@ -96,8 +107,8 @@
                 return output;
             };
 
-            /** 
-             * Returns an object containing the start and end time of an 
+            /**
+             * Returns an object containing the start and end time of an
              * overlap
              * @private
              * @param {Object} item1, item2 - takes Item object
@@ -133,7 +144,8 @@
              * @param {Array} item - Item object
              * @return {Array} Item ids belonging to overlaps of item
              */
-
+            // This applies to other function like these: if you want those to "more" private, don't add them to "this" and
+            // simply declare as vars
             this._getMembersInMyOverlaps = function(item) {
                 var i = 0,
                     j = 0,
@@ -163,7 +175,7 @@
                 // get overlap Ids that are not already in the array
                 var i = 0,
                     output = [];
-                
+
                 for (i=0; i<item.overlap.length; i++) {
                     if (overlapIds.indexOf(item.overlap[i]) === -1) {
                         output.push(item.overlap[i]);
@@ -195,7 +207,7 @@
                     itemObj = null,
                     newOverlapIds = [];
 
-                    /** 
+                    /**
                      * Get list of members to check for overlaps, but make sure
                      * to filter out members we've already checked.
                      */
@@ -243,7 +255,7 @@
 
              };
 
-            /** 
+            /**
              * Determines width of item by first getting all the Overlaps
              * that not only it belongs to, but that it has a relationship
              * to through an item object that it is overlapping with to the
@@ -266,15 +278,15 @@
                     max = null;
 
                 /**
-                 * The width of the element is the total canvas width divided 
-                 * by the maximum number of peers, defined by items that not 
-                 * only share my overlap, but items that share my peers' 
-                 * overlaps. This accounts for cases where a new item is 
+                 * The width of the element is the total canvas width divided
+                 * by the maximum number of peers, defined by items that not
+                 * only share my overlap, but items that share my peers'
+                 * overlaps. This accounts for cases where a new item is
                  * added to the calendar that doesn't overlap with me, but
                  * overlaps with an item I overlap with.
                  */
 
-                /** 
+                /**
                  * Get list of relevant Overlap objects to check and store
                  * their member lengths
                  */
@@ -299,13 +311,15 @@
             };
 
 
-            /** 
+            /**
              * Item class defines properties of a new event (item)
              * @param {String} start - Numeric string indicating start time as
              * difference from calendar start
-             * @param {String} end - Numeric string indicating end time as 
+             * @param {String} end - Numeric string indicating end time as
              * difference from calendar start
              */
+            // This should be defined in an angular service. ItemService would actually include the Item model and the
+            // utility functions for it.
             var Item = function(start, end, title, location) {
                 Item.counter = (Item.counter || 0) + 1;
                 this._init.apply(this, arguments);
@@ -323,7 +337,7 @@
                 this.location = location || 'Sample location';
             };
 
-            /** 
+            /**
              * Overlap class defines properties and methods of an overlap
              * between two Items
              * @param {String} start - Numeric string indicating start time of
@@ -331,7 +345,7 @@
              * @param {String} end - Numeric string indicating end time of
              * overlaps difference from calendar start
              */
-
+            // Same here, but the OverlapService
             var Overlap = function(start, end) {
                 Overlap.counter = (Overlap.counter || 0) + 1;
                 this._init.apply(this, arguments);
@@ -345,7 +359,7 @@
                 this.memberPositions = {};
             };
 
-            /** 
+            /**
              * Adds an item as a member of this Overlap, updates overlap and
              * item properties
              * @param {Object} item - Item instance
@@ -371,12 +385,12 @@
                     while (this.memberPositions[i]) {
                         i++;
                     }
-    
+
                     item.position = i;
 
                     item.positionLocked = true;
                 }
-                
+
                 /**
                  * Make sure that this item doesn't already exist as a member
                  * of this Overlap
@@ -386,17 +400,17 @@
                 }
                 this.memberPositions[item.position] = item.id;
 
-                /** 
+                /**
                  * Make sure that this overlap id doesn't already exist in this
                  * Item.overlap array
                  */
                 if (item.overlap.indexOf(this.id) === -1) {
                     item.overlap.push(this.id);
                 }
-                
+
             };
 
-            /** 
+            /**
              * Given two items, create a new Overlap object; this contains the
              * only means of constructing new Overlap instance
              * @private
@@ -410,9 +424,9 @@
                     newOverlap = null,
                     overlappingItems,
                     itemObj = null;
-                
+
                 /**
-                 * Check to see if this overlap already exists. If it does, 
+                 * Check to see if this overlap already exists. If it does,
                  * just add these items to the overlap that exists. Otherwise,
                  * create a new one and add these items to it.
                  */
@@ -439,18 +453,18 @@
                     itemObj = this._getObjectFromId(overlappingItems[i], this.items);
                     newOverlap.addItem(itemObj);
                  }
-                                    
+
                 this._overlaps.push(newOverlap);
             };
 
-            /** 
+            /**
              * Constructs and adds an Item object to the items array and update
              * Overlaps and existing Item properties
              * @param {Object} item - Basic object containing start and end props
              */
 
             this.addItem = function(item) {
-                
+
                 var overlappingItems = this._overlapWith(item, this.items),
                     overlappingOverlaps = this._overlapWith(item, this._overlaps),
                     i = 0,
@@ -479,7 +493,7 @@
 
                         /**
                          * We want to sort this in order of overlaps that have
-                         * the most members first, to avoid items which are 
+                         * the most members first, to avoid items which are
                          * members of many overlaps being locked into too low
                          * a position
                          */
@@ -501,7 +515,7 @@
                          */
 
                         sortedOverlaps.sort(_compareFunction);
-                        
+
                         /**
                          * Clear out the overlappingOverlaps array
                          */
@@ -532,11 +546,11 @@
                             overlapObj = this._getObjectFromId(overlappingOverlaps[i], this._overlaps);
 
                             /**
-                             * We will use this opportunity to remove members 
+                             * We will use this opportunity to remove members
                              * that we find in these Overlap ojects from the
                              * overlappingItems array by pushing it into
                              * an array we will later use to filter them out.
-                             * 
+                             *
                              * The reason is we will be creating new Overlap
                              * objects with the remaining members, and we don't
                              * want to do that if these members are already
@@ -554,8 +568,8 @@
                     }
 
                     /**
-                     * Make sure to remove all instances of members in the 
-                     * removeArray from the overlappingItems array before 
+                     * Make sure to remove all instances of members in the
+                     * removeArray from the overlappingItems array before
                      * processing to create new overlaps so that we know we're
                      * making new overlaps for virgin items
                      */
@@ -591,8 +605,9 @@
             $scope.items = this.items;
 
             $scope.addItem = this.addItem;
-            
+
             $scope.init = function(events) {
+                // I know it's a jsLint thing but i really hate this.
                 var i = 0;
 
                 /**
@@ -627,6 +642,7 @@
              * controller
              * @private
              */
+            // You could simply use the index in the scales
             this._getStripe = function() {
                 if (this.stripe === 'odd') {
                     this.stripe = 'even';
@@ -709,7 +725,7 @@
                  * Set the height of the calendar to be the same height
                  * as the timeline
                  */
-
+                // This is a nono in angular. Controller should NEVER access the DOM. What you want here is a directive
                 var calCtrlDiv = document.getElementById('calCtrl');
                 calCtrlDiv.style.height = end - start + 'px';
             };
@@ -724,6 +740,7 @@ var layOutDay = function(events) {
      * If an array is not given, throw an error and return
      */
 
+    // Angular already have methods to do that, removing the need for the array polyfill
     if (!events || !(Array.isArray(events))) {
         try {
             throw new Error("Expected an array.");
@@ -748,7 +765,10 @@ var layOutDay = function(events) {
      * For each given event, check to make sure that the end is greater than
      * the start. Won't do any further validation than this.
      */
-
+    // I think this validation should be done inside the angular scope. However, I also would suggest that all the interaction
+    // with the items object be done from an AngularService. You would then update the items in a way similar to this:
+    // scope.getInjector().get('ItemService').updateItems(events);
+    // This would throw if the validation fails
     for (i=0; i<events.length; i++) {
         if (events[i].start > events[i].end) {
             try {
@@ -772,7 +792,10 @@ var layOutDay = function(events) {
     /**
      * Update the DOM with the model change
      */
-
+    // And finally here you would do scope.$apply(scope.reloadItems());
+    // The reloadItems() method here would be using the service to get the Item array and set it on its scope.
+    // All of these are really hacks to let the console interact with your angular application, which i understand is
+    // a requirement of the exercise, but in the end you want to do the least amount of work in here and maximize it in the angular app
     scope.$apply();
 
     /** 
